@@ -1,0 +1,2 @@
+echo "pdf/" >> .gitignore
+echo "__pycache__/" >> .gitignore

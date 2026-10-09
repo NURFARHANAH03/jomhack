@@ -29,3 +29,4 @@ registration_ids = ["p3", "p1", "p2", "p3"]#list contains 4 elements with a dupl
 unique_registration_ids = set(registration_ids)#convert to set to remove duplicates
 print(sorted(unique_registration_ids))#order them alphebatically
 
+#exercise 3 - aggregate capacities (calculate total sum of workshop capacities)

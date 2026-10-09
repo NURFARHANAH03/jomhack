@@ -1,0 +1,16 @@
+print(type(price).__name__)  #with __name__
+print(type(price))   #without __name__
+
+#Without .__name__: Output is wrapped in standard Python class representation formatting (<class '...'>). This is ideal when debugging or printing objects directly in a shell.
+#With .__name__: Output gives clean, unadorned text. This is useful when you need to format logs, print clean user-facing summaries, or compare type names as plain text strings.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+registered = 5
+
+# Both increase the value to 6
+registered += 1  #shortcut programmer way
+registered = registered + 1
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(extra note)
+virtual environment like venv usually is use  when you need to build a lot of different project if we use in global for same project some of the libraries we intall at the next project but be the new one and updated which can cause the old project to break due to not compatible.

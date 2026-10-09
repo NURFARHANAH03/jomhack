@@ -1,0 +1,19 @@
+What is JSON?
+Imagine you want to send a letter to a friend in another country. You need a standard language both of you understand.
+
+JSON (JavaScript Object Notation) is like a simple text format that almost every programming language understands.
+
+Programs use JSON to talk to each other or save data to files.
+
+It stores data as plain text using simple structures like lists [...] and key-value pairs {"key": "value"}.
+---------------------------------------------------------------------------------------------
+records = [{"title": "Python", "capacity": 20}]
+
+based on above means:-
+[...] (Square brackets): Creates a list (a collection of items).
+
+{...} (Curly braces): Creates a dictionary inside the list (a set of labels and values).
+
+"title": "Python": A label "title" holding text "Python".
+
+"capacity": 20: A label "capacity" holding the number 20.

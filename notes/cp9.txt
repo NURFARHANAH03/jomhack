@@ -1,0 +1,3 @@
+return statement serves a fundamental purpose in programming: it passes the calculated result back to the place where the function was called, allowing you to store, reuse, or manipulate that value later in your code
+
+#usually print is used for developer to check, once we want to deploy the project we usually comment the print

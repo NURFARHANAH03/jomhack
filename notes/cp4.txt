@@ -1,0 +1,4 @@
+.strip() in Python is to remove leading and trailing whitespace (spaces, tabs, and newline characters \n) from the beginning and end of a string.
+It leaves all spaces in the middle of the string untouched
+-------------------------------------------------------------------------------------------------------------------------------------------------
+.lower() to convert the words to lowercase characters

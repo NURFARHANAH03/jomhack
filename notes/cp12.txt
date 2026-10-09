@@ -1,0 +1,24 @@
+# ❌ WITHOUT @dataclass (Old, tedious way)
+class Workshop:
+
+    def __init__(self, title: str, capacity: int):
+        self.title = title
+        self.capacity = capacity
+
+    def __repr__(self):
+        return f"Workshop(title={self.title!r}, capacity={self.capacity!r})"
+
+------------------------------------------------------------------------------
+#  WITH @dataclass (Clean, modern way)
+from dataclasses import dataclass
+
+
+@dataclass
+class Workshop:
+    title: str
+    capacity: int
+
+#@dataclass right on top of your class, you are stamping it with a magic rule that tells Python:"Hey Python! This class is just a box to hold data. Stop making me write all that boring setup code—do it for me!"
+
+@ whenever you find yourself repeating the same setup, validation, or routing logic across multiple functions or classes. It keeps your code clean, readable, and DRY (Don't Repeat Yourself)!
+When a class is designed to run custom behavior or process injected tools, writing standard class with def __init__ is standard practice.

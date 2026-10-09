@@ -1,0 +1,25 @@
+logging (nnti tanya ai tak silap macam track changes tapi macam tak guna sgt sbb kita guna github je utk track changes)
+
+------------------------------------------------------------------------------------------------------------------------
+#example 2
+Case 1: valid_capacity(501) -> Triggers an Error
+Condition Check:type(501) is not int is False (501 is an integer).not 1 <= 501 <= 500 evaluates to not False, which is True (because 501 is larger than 500).
+Result: Because one part of the or condition is True, Python executes raise ValueError(...).
+Outcome: The program immediately stops running and prints the error traceback showing ValueError: Capacity must be an integer from 1 to 500.
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+The Core Difference
+Git is for standard Code History (Development Time):
+
+Git tracks changes to your source code over time (e.g., who wrote a function, when it was modified, and what code changed).
+
+It answers: "How did my code look last week, and who changed line 42?"
+
+Logging is for Application Activity (Runtime):
+
+Logging tracks what happens while your program is actually running (e.g., user sign-ins, system errors, database connection failures, or rejected inputs).
+
+It answers: "What happened in production at 3:00 AM when a user tried to register?"
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+It allows dynamic (flexible) code:
+In real apps, workshop_id won't always be "w1". It might come from a user clicking a button or selecting an option on a website. By using a variable, your logging line or database query works automatically for any workshop ID:

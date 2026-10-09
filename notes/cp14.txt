@@ -1,0 +1,45 @@
+user password that they insert, the developer should hash the password to protect the security info of the user
+------------------------------------------------------------------------------------------------------------------
+A Simple Everyday Analogy
+Imagine you receive an email from a airline flight booking:
+
+"Dear Customer, your flight MH123 is confirmed for 10 October 2026 at 3:00 PM."
+
+When you read that paragraph, your brain parses the text. You break it down into key details:
+
+Flight Number: MH123
+
+Date: 10 October 2026
+
+Time: 3:00 PM
+
+What Parsing Means in Python
+When your application receives data from a server, it usually comes as raw text string (e.g., '{"id": "w1", "capacity": 20}'). Python sees this as just a plain sequence of characters, not an interactive object.
+
+When you call response.json():
+
+Raw Text (Unparsed): '{"id": "w1", "capacity": 20}' (A plain string; you can't do math on it or easily extract keys).
+
+Parsing Process: Python reads through the string, checks if the syntax matches valid JSON rules, and converts it.
+
+Parsed Result (Python Dictionary): {"id": "w1", "capacity": 20}.
+
+Now that it's parsed, you can access values directly in your code using standard dictionary keys:
+
+------------------------------------------------------------------------------------------------------
+What is await / Async Waiting Actually Used For?
+In Python, an async event loop can only run one piece of code at a time on a single CPU thread.
+
+When your code encounters an I/O operation (Input/Output)—such as waiting for a database response, making a web request, reading a file, or waiting for a timer—the CPU normally sits completely idle doing nothing.
+
+await is a signal to Python that says:
+
+"I am about to wait for something slow (like a database or network response). While I am waiting here, pause my function and go execute other incoming user requests on the server!"
+
+This is why FastAPI handles thousands of requests per second efficiently—when one request is awaiting a database query, FastAPI processes other incoming user requests in the background.
+
+//A Simple Analogy:// 
+The Restaurant Waiter 🍽️
+Synchronous Server: The waiter takes an order from Table 1, walks to the kitchen, stands inside the kitchen doing nothing while waiting for the food to cook, returns to Table 1, and only then walks over to take Table 2's order. If 10 tables arrive at once, you need 10 waiters or the restaurant collapses.
+
+Asynchronous Server: The waiter takes Table 1's order, hands it to the kitchen (await), and immediately walks to Table 2 to take their order while Table 1's food is cooking. One waiter can serve dozens of tables simultaneously without getting overwhelmed!

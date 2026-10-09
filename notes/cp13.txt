@@ -1,0 +1,21 @@
+In Python, 'assert' is a testing and debugging tool used to verify if a condition is True.
+
+If the condition is True, Python silently moves to the next line of code without doing anything.
+
+If the condition is False, Python immediately stops execution and raises an AssertionError, indicating that there is a bug in your code.
+-----------------------------------------------------------------------------------------------------------------------------------------
+py -m pytest file_name.py #use this to run code with pytest
+
+also since I'm using py everytime want to run the code, when to install library use:
+e.g.
+py -m pip install pytest
+--------------------------------------------------------------------------------------------------------------
+
+* **Normal Python Execution (`python file.py`):**
+* **Requires Manual Function Call:** Yes.
+* **Behavior:** Python only reads function definitions and will ignore them unless you explicitly call `test_valid_capacity()` at the end of the script.
+
+
+* **Pytest Framework (`pytest file.py`):**
+* **Requires Manual Function Call:** No.
+* **Behavior:** Pytest automatically discovers, parametrizes, and executes any functions prefixed with `test_`.

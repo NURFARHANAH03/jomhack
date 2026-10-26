@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AUTHOR_ID, createPost, updatePost } from "../lib/api";
+import { createPost, updatePost } from "../lib/api";
 import { MOODS, PROMPTS, isVideo } from "../constants";
 import Modal from "./Modal";
 
@@ -26,7 +26,6 @@ export default function StoryForm({ post, onClose, onSaved }) {
     data.append("body", body);
     if (mood) data.append("mood", mood);
     else if (isEdit && post.mood) data.append("clear_mood", "true"); // blank values are ignored by the API
-    if (!isEdit) data.append("author_id", AUTHOR_ID);
     if (file) data.append("image", file);
     else if (isEdit && removeMedia) data.append("remove_image", "true");
 

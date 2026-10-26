@@ -25,18 +25,18 @@ def get_post(post_id: int, service: PostService = Depends(get_post_service)):
     return service.get_post(post_id)
 
 
-# CREATE - 201  (multipart FormData: title, body, mood, author_id, image)
+# CREATE - 201  (multipart FormData: title, body, mood, image)
 @router.post("", response_model=Post, status_code=201)
 def create_post(
     title: str = Form(...),
     body: str = Form(...),
     mood: Optional[str] = Form(None),
-    author_id: Optional[str] = Form(None),
     image: Optional[UploadFile] = File(None),
+    user: CurrentUser = Depends(get_current_user),      # 1. Require logged-in user
     service: PostService = Depends(get_post_service),
 ): 
-    return service.create_post(title, body, mood, author_id, image)
-
+    # 2. Pass user.id as author_id to your service
+    return service.create_post(title, body, mood, user.id, image)
 
 # UPDATE - 200  (only the fields you send are changed)
 @router.put("/{post_id}", response_model=Post)

@@ -18,7 +18,23 @@ from kokoronal.services.media_service import MediaService
 from kokoronal.services.post_service import PostService
 from kokoronal.services.vocabulary_service import VocabularyService
 from kokoronal.vocabulary_repository import VocabularyRepository
+from typing import Optional
+from fastapi import Header
 
+async def get_optional_current_user(
+    authorization: Optional[str] = Header(None),
+    supabase = Depends(get_supabase_client)
+) -> Optional[CurrentUser]:
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ")[1]
+    try:
+        res = supabase.auth.get_user(token)
+        if res and res.user:
+            return CurrentUser(id=res.user.id, email=res.user.email)
+    except Exception:
+        return None
+    return None
 
 def get_post_repository() -> PostRepository:
     return PostRepository(get_supabase_client())

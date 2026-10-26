@@ -1,24 +1,18 @@
 """HTTP layer for the vocabulary reward."""
 from typing import Optional
-
 from fastapi import APIRouter, Depends
-
-from kokoronal.dependencies import get_vocabulary_service
-from kokoronal.schemas import Vocabulary
+from kokoronal.dependencies import get_optional_current_user, get_vocabulary_service
+from kokoronal.schemas import CurrentUser, Vocabulary
 from kokoronal.services.vocabulary_service import VocabularyService
 
 router = APIRouter(prefix="/vocabulary", tags=["vocabulary"])
 
-
-# GET /vocabulary?letter=A&author_id=ada
-# Call this right after POST /posts returns 201 (or when the user picks a letter).
-# letter is optional (random if missing). Gemini can take a few seconds,
-# so the frontend should show a loading state.
 @router.get("", response_model=Vocabulary)
 def get_vocabulary(
     letter: Optional[str] = None,
-    author_id: Optional[str] = None,
+    user: Optional[CurrentUser] = Depends(get_optional_current_user),
     service: VocabularyService = Depends(get_vocabulary_service),
 ):
-    return service.get_word(letter, author_id)
-
+    user_id = user.id if user else "guest"
+    # Change get_vocabulary to get_word (or whichever method is defined in VocabularyService)
+    return service.get_word(user_id, letter)

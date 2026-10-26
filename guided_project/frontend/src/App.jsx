@@ -1,6 +1,6 @@
 //The main control center. It holds your top-level state (e.g., list of stories, active modals), renders the navigation header, and controls the main page layout.
 import { useCallback, useEffect, useState } from "react";
-import { deletePost, listPosts, setToken, getToken } from "./lib/api";
+import { deletePost, listPosts, getToken, isGuestMode, clearAuth } from "./lib/api";
 import LoginForm from "./components/LoginForm";
 import { PROMPTS } from "./constants";
 import StoryCard from "./components/StoryCard";
@@ -29,11 +29,12 @@ export default function App() {
   // 1. READ TOKEN FROM LOCALSTORAGE
   // ========================================================
   const token = getToken();
+  const isGuest = isGuestMode();
 
   // ========================================================
   // 2. IF NO TOKEN, SHOW LOGIN SCREEN & BLOCK APP DASHBOARD
   // ========================================================
-  if (!token) {
+  if (!token && !isGuest) {
     return <LoginForm onLoginSuccess={() => window.location.reload()} />;
   }
 
@@ -115,28 +116,35 @@ export default function App() {
               {/* Profile Avatar Button */}
               <button 
                 onClick={() => setShowProfileMenu((prev) => !prev)}
-                className="w-10 h-10 rounded-full bg-pink-200 text-pink-900 font-bold flex items-center justify-center cursor-pointer"
+                className={`w-10 h-10 rounded-full font-bold flex items-center justify-center cursor-pointer transition ${
+                  isGuest ? "bg-amber-100 text-amber-800 border border-amber-300" : "bg-pink-200 text-pink-900"
+                }`}
               >
-                NF
+                {isGuest ? "G" : "NF"}
               </button>
 
               {/* Dropdown Menu */}
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-800">Nurfarhanah</p>
-                    <p className="text-xs text-gray-500">User Account</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {isGuest ? "Guest User" : "Nurfarhanah"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {isGuest ? "Local Sandbox Session" : "User Account"}
+                    </p>
                   </div>
-          <button
-            onClick={() => {
-              setToken(null); // 1. Removes the JWT token from localStorage
-              setShowProfileMenu(false); // 2. Closes the dropdown menu
-              window.location.reload(); // 3. Reloads the app so state resets cleanly
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
-          >
-            Log Out
-          </button>
+
+                  <button
+                    onClick={() => {
+                      clearAuth(); // Clears both token and guest_mode
+                      setShowProfileMenu(false);
+                      window.location.reload();
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+                  >
+                    Log Out
+                  </button>
                 </div>
               )}
             </div>

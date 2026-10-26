@@ -1,0 +1,10 @@
+pydantic:
+>is use to ensure the datatype remain consistent even though after update etc
+>used in Python (and heavily in FastAPI)
+
+fastapi is to check wether the endpoint is working or not (use case: to connect with the front end and back end)
+
+(e.g 3)
+/health to check endpoint health
+
+to check what kind of column and table use for the project

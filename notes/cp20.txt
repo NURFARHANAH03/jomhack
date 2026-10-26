@@ -1,0 +1,9 @@
+p. in the example is just a variable, can change to other letter
+-----------------------------------------------------------------
+#for example 1
+>How ?. prevents a crash: Because of ?., JavaScript checks if post.author exists. Since it is undefined, it stops right there and safely evaluates the whole expression to undefined instead of throwing an error.
+>The ?? operator is called Nullish Coalescing. It acts as a fallback default value handler.
+It checks the left side: if the left side evaluates to either null or undefined, it uses the right side value ("Unknown") instead.
+-------------------------------------------------------------------------------------------------------------------------------------
+#example 2
+Quick Tip: If you want an array back even when searching for matching items, use .filter() (which returns an empty array [] if nothing matches). Use .find() when you only want a single object/element back!

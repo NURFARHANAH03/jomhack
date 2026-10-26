@@ -1,0 +1,1 @@
+export const cleanTitle = (text) => text.trim();

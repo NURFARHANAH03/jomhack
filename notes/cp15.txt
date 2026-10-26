@@ -1,0 +1,21 @@
+#example 1
+column
+row #this case row ada 2 since 2 brackets
+
+#sql is in uppercase like WITH, VALUES, SELECT, WHERE
+#sql to comment using --
+-------------------------------------------------------------------------------------------
+Aggregating:
+"Taking a bunch of connected pieces and turning them into one single thing."
+Think of it like this:
+• In normal life: If I ask about your friends, you don't list every single person, their age, and their favorite food. You just say, "I have 5 friends." You took a big list of people and squished it into a single number. That is aggregation.
+• In SQL queries: Instead of showing 20 rows of every single thing a customer bought, you show one row with the total amount they spent.
+• In database design: Instead of just saying "a mechanic fixes a car," you treat that entire "car fix" event as one single job so you can attach a bill to it.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+add """ everytime wanna work with SQL language if in python files but if already in SQL file no need
+
+about string:
+
+test_1 = "hello world" #single quotation when in single line string
+
+test_2 = """hello world""" # triple quotation when the string have multiple lines

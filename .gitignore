@@ -1,2 +1,6 @@
-echo "pdf/" >> .gitignore
-echo "__pycache__/" >> .gitignore
+pdf/
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,16 @@
+#utk frontend just press go live utk launch the website or apps (no need run kat terminal)
+#html like button, structure, shape
+#css is like colour & style
+
+> main > article/section > div (the one that wrap like a box inside a section)> header > paragraph
+
+> form > label > input (e.g which input id you want the button to trigger this communicate with backend)> button
+------------------------------------------------------------------------------------------------------------------
+It means: “Create a clickable link that says ‘Read another story’ and when clicked, jump to a part of the same page with the id next.”
+
+In plain English:
+
+<a> = an anchor/link
+href="#next" = the target of the link is #next
+#next means “look for an element with id="next" on this same page”
+The visible text is: “Read another story” or if in #next, if I replace #next with link (like youtube page/my product page) so if they click it will auto open that page

@@ -1,0 +1,15 @@
+#const variable_name
+
+#console.log kat javascript ni function macam print if kat python
+
+#to run javascript in terminal is:
+ node filename.js
+
+ in javascript to compare use ===, instead like python use ==
+
+ ------------------------------------------------------------------------------
+ e.g.
+ // Valid JavaScript (though hard to read!)
+if (title.length > 160) { console.log("Too long"); console.log("Please shorten your text"); }
+
+for javascript whitespace/indent doesnt matter when inside {}, unless python which is indentation is important to care cause if not will get error like indentationError

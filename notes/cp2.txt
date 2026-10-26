@@ -1,0 +1,13 @@
+#to push to git that already exist just to update
+
+git add .
+git commit -m "your-comment"
+git push
+
+-------------------------------------------------------------------
+Summary Checklist
+For simple Git pushes (Single Project): Working inside subfolders is completely fine—Git tracks everything automatically.
+
+For best practice (Industry Standard): Staying at the root directory (C:\jomhack\) ensures that all configuration files, automated checkers, test runners, and path references work seamlessly without path-mismatch bugs!
+
+#so to conclude to update github, go to root first cd.. then update github as usually using git comments

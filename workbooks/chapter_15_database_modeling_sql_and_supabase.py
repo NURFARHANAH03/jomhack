@@ -25,3 +25,7 @@ print("\nWORKED EXAMPLE 2: Aggregating a relationship")
 with closing(sqlite3.connect(":memory:")) as connection:
     rows = connection.execute(EXAMPLE_2).fetchall()
 print(rows)
+
+#So `w1` has two registrations, while `w2` has one. That’s why the output is:
+#[('w1', 2), ('w2', 1)]
+#as Each tuple is `(workshop_id, registered_count)`.

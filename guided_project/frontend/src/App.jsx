@@ -1,6 +1,7 @@
 //The main control center. It holds your top-level state (e.g., list of stories, active modals), renders the navigation header, and controls the main page layout.
 import { useCallback, useEffect, useState } from "react";
-import { deletePost, listPosts } from "./lib/api";
+import { deletePost, listPosts, setToken, getToken } from "./lib/api";
+import LoginForm from "./components/LoginForm";
 import { PROMPTS } from "./constants";
 import StoryCard from "./components/StoryCard";
 import StoryForm from "./components/StoryForm";
@@ -23,6 +24,22 @@ export default function App() {
   const [vocab, setVocab] = useState(null); // null | "saved" | "browse"
   const [prompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
 
+
+  // ========================================================
+  // 1. READ TOKEN FROM LOCALSTORAGE
+  // ========================================================
+  const token = getToken();
+
+  // ========================================================
+  // 2. IF NO TOKEN, SHOW LOGIN SCREEN & BLOCK APP DASHBOARD
+  // ========================================================
+  if (!token) {
+    return <LoginForm onLoginSuccess={() => window.location.reload()} />;
+  }
+
+  // ========================================================
+  // 3. REST OF YOUR DASHBOARD LOGIC (load, useEffect, etc.)
+  // ========================================================
   const load = useCallback(async () => {
     try {
       setPosts(await listPosts());
@@ -110,16 +127,16 @@ export default function App() {
                     <p className="text-sm font-semibold text-gray-800">Nurfarhanah</p>
                     <p className="text-xs text-gray-500">User Account</p>
                   </div>
-                  <button
-                    onClick={() => {
-                      setShowProfileMenu(false);
-                      console.log("Logged out successfully");
-                      // Backend logout logic (e.g., supabase.auth.signOut()) will go here later
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
-                  >
-                    Log Out
-                  </button>
+          <button
+            onClick={() => {
+              setToken(null); // 1. Removes the JWT token from localStorage
+              setShowProfileMenu(false); // 2. Closes the dropdown menu
+              window.location.reload(); // 3. Reloads the app so state resets cleanly
+            }}
+            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+          >
+            Log Out
+          </button>
                 </div>
               )}
             </div>

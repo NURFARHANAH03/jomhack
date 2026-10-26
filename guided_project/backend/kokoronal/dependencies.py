@@ -5,8 +5,12 @@ FastAPI builds the chain for it:
     Supabase client -> PostRepository + MediaService -> PostService
 In tests you can swap any of these for a fake version.
 """
-from fastapi import Depends
+from typing import Optional
 
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+...
+from kokoronal.schemas import CurrentUser
 from kokoronal.clients import get_gemini_client, get_supabase_client
 from kokoronal.config import settings
 from kokoronal.database import PostRepository
@@ -43,3 +47,29 @@ def get_vocabulary_service(
     return VocabularyService(
         get_gemini_client(), settings.gemini_model, history, settings.default_author_id
     )
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+) -> CurrentUser:
+    """Read 'Authorization: Bearer <token>' and ask Supabase who the token belongs to."""
+    unauthorized = {"WWW-Authenticate": "Bearer"}
+    if credentials is None:
+        print("DEBUG [auth] no Authorization header")
+        raise HTTPException(401, "Not logged in", headers=unauthorized)
+
+    try:
+        result = get_supabase_client().auth.get_user(credentials.credentials)
+    except Exception as exc:  # expired, malformed or revoked token
+        print("DEBUG [auth] token rejected:", type(exc).__name__, "-", exc)
+        raise HTTPException(401, "Invalid or expired token", headers=unauthorized)
+
+    user = result.user if result else None
+    if user is None:
+        print("DEBUG [auth] token accepted but no user returned")
+        raise HTTPException(401, "Invalid or expired token", headers=unauthorized)
+
+    print("DEBUG [auth] logged in as:", user.id, "|", user.email)
+    return CurrentUser(id=str(user.id), email=user.email)

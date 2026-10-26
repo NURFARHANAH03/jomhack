@@ -1,11 +1,36 @@
 // Frontend Talks to the Backend and database. All calls to the FastAPI backend live here.
 const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-// No login yet: every story belongs to this author (matches the backend default).
-export const AUTHOR_ID = "ada";
+// Helper functions to manage the auth token in localStorage
+export function getToken() {
+  return localStorage.getItem("token");
+}
 
-async function request(path, options) {
-  const res = await fetch(`${BASE}${path}`, options);
+export function setToken(token) {
+  if (token) {
+    localStorage.setItem("token", token);
+  } else {
+    localStorage.removeItem("token");
+  }
+}
+
+async function request(path, options = {}) {
+  const token = getToken();
+
+  // Merge headers and attach Authorization Bearer token if logged in
+  const headers = {
+    ...options.headers,
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE}${path}`, {
+    ...options,
+    headers,
+  });
+
   if (!res.ok) {
     let message = `Request failed (${res.status})`;
     try {
@@ -22,9 +47,19 @@ async function request(path, options) {
   return res.status === 204 ? null : res.json();
 }
 
-// FormData bodies: the browser sets the multipart Content-Type itself.
-export const listPosts = () => request(`/posts?author_id=${AUTHOR_ID}`);
+// Auth API Calls
+export const loginUser = (credentials) =>
+  request("/auth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+
+// Post API Calls (Backend automatically extracts user ID from token)
+export const listPosts = () => request("/posts");
 export const createPost = (form) => request("/posts", { method: "POST", body: form });
 export const updatePost = (id, form) => request(`/posts/${id}`, { method: "PUT", body: form });
 export const deletePost = (id) => request(`/posts/${id}`, { method: "DELETE" });
-export const getWord = (letter) => request(`/vocabulary?letter=${letter}&author_id=${AUTHOR_ID}`);
+
+// Vocabulary API Call
+export const getWord = (letter) => request(`/vocabulary?letter=${letter}`);

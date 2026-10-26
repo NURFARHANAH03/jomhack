@@ -30,3 +30,7 @@ class Vocabulary(VocabAI):
     """What our API returns: the word plus where it came from."""
     source: str  # "ai" or "fallback"
 
+class CurrentUser(BaseModel):
+    """The logged-in user, taken from the Supabase token."""
+    id: str
+    email: Optional[str] = None

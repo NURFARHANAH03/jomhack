@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from postgrest.exceptions import APIError
 
 from kokoronal.config import settings
-from kokoronal.routers import health, posts, vocabulary
+from kokoronal.routers import auth, health, posts, vocabulary
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("kokoronal")
@@ -30,5 +30,6 @@ async def supabase_error_handler(_: Request, exc: APIError):
 
 
 app.include_router(health.router)
+app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(vocabulary.router)

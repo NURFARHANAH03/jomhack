@@ -3,8 +3,8 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
 
-from kokoronal.dependencies import get_post_service
-from kokoronal.schemas import Post
+from kokoronal.dependencies import get_current_user, get_post_service
+from kokoronal.schemas import CurrentUser, Post
 from kokoronal.services.post_service import PostService
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -13,11 +13,11 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 # READ (list) - 200
 @router.get("", response_model=list[Post])
 def list_posts(
-    author_id: Optional[str] = None,
+    user: CurrentUser = Depends(get_current_user),
     service: PostService = Depends(get_post_service),
 ):
-    return service.list_posts(author_id)
-
+    print("DEBUG [router] GET /posts | user:", user.id)
+    return service.list_posts(user.id)
 
 # READ (detail) - 200
 @router.get("/{post_id}", response_model=Post)

@@ -1,4 +1,4 @@
-"""PostService: the business rules for journal posts. Without this file, a blank title would reach the database, and you’d get an ugly database error instead of a clear message. It’s also the file that coordinates the other two, because creating a post with a photo means calling media_service to upload first, then database to save the row.
+"""PostService: the business rules for journal posts.
 
 Uses PostRepository (database) and MediaService (files). The router calls
 this class; this class never touches HTTP forms or SQL directly.
@@ -45,10 +45,14 @@ class PostService:
     def list_posts(self, author_id: Optional[str] = None) -> list[dict]:
         return self.posts.list_posts(author_id)
 
-    def get_post(self, post_id: int) -> dict:
+    def get_post(self, post_id: int, user_id: Optional[str] = None) -> dict:
         post = self.posts.get_by_id(post_id)
+        print("DEBUG [post_service.get_post] id:", post_id, "| found:", post is not None)
         if post is None:
             raise HTTPException(404, "Post not found")
+        if user_id is not None and post["author_id"] != user_id:
+            print("DEBUG [post_service.get_post] 403: belongs to", post["author_id"], "not", user_id)
+            raise HTTPException(403, "This story belongs to someone else")
         return post
 
     # ---------- CREATE ----------
@@ -88,8 +92,9 @@ class PostService:
         clear_mood: bool,
         remove_image: bool,
         image: Optional[UploadFile],
+        user_id: Optional[str] = None,
     ) -> dict:
-        existing = self.get_post(post_id)  # 404 if missing
+        existing = self.get_post(post_id, user_id)  # 404 if missing
         changes: dict = {}
 
         if title is not None:
@@ -128,7 +133,7 @@ class PostService:
         return updated
 
     # ---------- DELETE ----------
-    def delete_post(self, post_id: int) -> None:
-        existing = self.get_post(post_id)  # 404 if missing
+    def delete_post(self, post_id: int, user_id: Optional[str] = None) -> None:
+        existing = self.get_post(post_id, user_id)  # 404 if missing, 403 if not yours
         self.posts.delete(post_id)
         self.media.delete(existing.get("image"))

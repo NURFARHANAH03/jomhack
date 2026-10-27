@@ -47,11 +47,9 @@ class PostService:
 
     def get_post(self, post_id: int, user_id: Optional[str] = None) -> dict:
         post = self.posts.get_by_id(post_id)
-        print("DEBUG [post_service.get_post] id:", post_id, "| found:", post is not None)
         if post is None:
             raise HTTPException(404, "Post not found")
         if user_id is not None and post["author_id"] != user_id:
-            print("DEBUG [post_service.get_post] 403: belongs to", post["author_id"], "not", user_id)
             raise HTTPException(403, "This story belongs to someone else")
         return post
 

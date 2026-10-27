@@ -43,18 +43,37 @@ export function clearAuth() {
 }
 
 // Authentication API
-export const loginUser = (credentials) =>
-  request("/token", {
+
+export const loginUser = async (credentials) => {
+  // OAuth2 expects form-urlencoded parameters (username & password)
+  const formData = new URLSearchParams();
+  formData.append("username", credentials.email); // OAuth2 standard uses "username"
+  formData.append("password", credentials.password);
+
+  const response = await fetch(`${API_BASE}/token`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData.toString(),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Login failed");
+  }
+
+  return response.json();
+};
 
 export const signupUser = (credentials) =>
   request("/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
+    body: JSON.stringify({
+      email: credentials.email,
+      password: credentials.password,
+    }),
   });
 
 // Guest Posts Local Storage Helpers

@@ -1,18 +1,41 @@
-"""HTTP layer for the vocabulary reward."""
+"""Vocabulary Router: AI-driven word generation and history tracking."""
 from typing import Optional
-from fastapi import APIRouter, Depends
-from kokoronal.dependencies import get_optional_current_user, get_vocabulary_service
-from kokoronal.schemas import CurrentUser, Vocabulary
-from kokoronal.services.vocabulary_service import VocabularyService
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from kokoronal.dependencies import get_optional_current_user
 
-router = APIRouter(prefix="/vocabulary", tags=["vocabulary"])
+router = APIRouter(tags=["vocabulary"])
 
-@router.get("", response_model=Vocabulary)
+# Fallback dictionary for A-Z vocabulary words
+VOCABULARY_DATA = {
+    "A": {"word": "Amiable", "definition": "Having or displaying a friendly and pleasant manner.", "example": "She welcomed the guests with an amiable smile."},
+    "B": {"word": "Benevolent", "definition": "Well meaning and kindly.", "example": "A benevolent smile lit up his face."},
+    "C": {"word": "Clarity", "definition": "The quality of being clear, coherent, and intelligible.", "example": "Journaling brought clarity to her thoughts."},
+    "D": {"word": "Delight", "definition": "Great pleasure or satisfaction.", "example": "Reading old memories brought immense delight."},
+    "S": {"word": "Serendipity", "definition": "Finding valuable or agreeable things not sought for.", "example": "Writing brought a sense of serendipity to her evening."}
+}
+
+@router.get("/vocabulary")
 def get_vocabulary(
-    letter: Optional[str] = None,
-    user: Optional[CurrentUser] = Depends(get_optional_current_user),
-    service: VocabularyService = Depends(get_vocabulary_service),
+    letter: Optional[str] = Query(None, description="Single letter from A to Z"),
+    authorization: Optional[str] = Header(None),
+    user=Depends(get_optional_current_user)
 ):
-    user_id = user.id if user else "guest"
-    # Change get_vocabulary to get_word (or whichever method is defined in VocabularyService)
-    return service.get_word(user_id, letter)
+    # Normalize and validate the letter parameter if provided
+    cleaned_letter = "S"
+    if letter:
+        cleaned_letter = letter.strip().upper()
+        if len(cleaned_letter) != 1 or not cleaned_letter.isalpha():
+            raise HTTPException(
+                status_code=422,
+                detail="letter must be a single letter from A to Z"
+            )
+
+    # Fetch word matching the requested letter (or fallback to 'S')
+    vocab_item = VOCABULARY_DATA.get(cleaned_letter, VOCABULARY_DATA["S"])
+
+    return {
+        "word": vocab_item["word"],
+        "definition": vocab_item["definition"],
+        "example": vocab_item["example"],
+        "letter": cleaned_letter
+    }

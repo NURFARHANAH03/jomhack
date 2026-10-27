@@ -6,30 +6,28 @@ from kokoronal.schemas import CurrentUser
 router = APIRouter(tags=["auth"])
 
 # 1. Define Request & Response Models FIRST
+from pydantic import BaseModel, EmailStr, Field
+
+# 1. Define AuthRequest with capital EmailStr and masked password field
 class AuthRequest(BaseModel):
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(..., json_schema_extra={"format": "password"})
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-# 2. Route Endpoints BELOW the models
-@router.post("/signup", response_model=TokenResponse)
+# 2. Signup Endpoint
+@router.post("/signup")
 def signup(credentials: AuthRequest, supabase=Depends(get_supabase_client)):
     try:
         res = supabase.auth.sign_up({
             "email": credentials.email,
-            "password": credentials.password,
+            "password": credentials.password
         })
-        if not res.session:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Signup successful! Please check your email to confirm your account."
-            )
-        return TokenResponse(access_token=res.session.access_token)
-    except Exception as err:
-        raise HTTPException(status_code=400, detail=str(err)) from err
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/token", response_model=TokenResponse)
 def login(credentials: AuthRequest, supabase=Depends(get_supabase_client)):

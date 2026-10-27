@@ -16,7 +16,6 @@ def list_posts(
     user: CurrentUser = Depends(get_current_user),
     service: PostService = Depends(get_post_service),
 ):
-    print("DEBUG [router] GET /posts | user:", user.id)
     return service.list_posts(user.id)
 
 # READ (detail) - 200

@@ -1,15 +1,14 @@
 import { useRef, useState } from "react";
-import { getWord } from "../lib/api";
+import { clearAuth, getWord } from "../lib/api";
 import { LETTERS } from "../constants";
 import Modal from "./Modal";
 
-// justSaved = opened right after a story was saved (the reward). Otherwise opened from the nav.
 export default function VocabularyPopup({ justSaved, onClose }) {
   const [letter, setLetter] = useState("");
   const [word, setWord] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const latest = useRef(0); // ignore slow answers from an earlier letter
+  const latest = useRef(0);
 
   async function pick(l) {
     const id = ++latest.current;
@@ -19,9 +18,23 @@ export default function VocabularyPopup({ justSaved, onClose }) {
     setLoading(true);
     try {
       const result = await getWord(l);
-      if (id === latest.current) setWord(result);
+      if (id !== latest.current) return;
+
+      const returnedWord = result?.word?.trim() || "";
+
+      if (!returnedWord || returnedWord[0].toUpperCase() !== l.toUpperCase()) {
+        console.error("DEBUG [vocab] Mismatch:", { pickedLetter: l, receivedWord: returnedWord, fullResult: result });
+        setError(`That word doesn't start with ${l}. Please try again.`);
+      } else {
+        setWord(result);
+      }
     } catch (err) {
-      if (id === latest.current) setError(err.message);
+      if (err.status === 401) {
+        clearAuth();
+        window.location.reload();
+        return;
+      }
+      if (id === latest.current) setError(err.message || "Failed to load word.");
     } finally {
       if (id === latest.current) setLoading(false);
     }
@@ -64,7 +77,9 @@ export default function VocabularyPopup({ justSaved, onClose }) {
             <div className="bg-brand-50 border border-brand-200 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="serif-title text-2xl font-bold text-brand-700">{word.word}</h4>
-                <span className="text-xs font-bold text-brand-500 italic">{word.part_of_speech}</span>
+                {word.part_of_speech && (
+                  <span className="text-xs font-bold text-brand-500 italic">{word.part_of_speech}</span>
+                )}
               </div>
               <p className="text-xs text-gray-700 font-medium leading-relaxed mb-3">{word.definition}</p>
               <p className="border-t border-brand-200/60 pt-2 text-[11px] text-brand-600 italic">

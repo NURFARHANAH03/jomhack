@@ -84,4 +84,5 @@ def get_current_user(
     if user is None:
         raise HTTPException(401, "Invalid or expired token", headers=unauthorized)
 
+
     return CurrentUser(id=str(user.id), email=user.email)

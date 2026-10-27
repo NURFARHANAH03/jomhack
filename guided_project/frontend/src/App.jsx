@@ -1,6 +1,6 @@
 //The main control center. It holds your top-level state (e.g., list of stories, active modals), renders the navigation header, and controls the main page layout.
 import { useCallback, useEffect, useState } from "react";
-import { deletePost, listPosts, getToken, isGuestMode, clearAuth } from "./lib/api";
+import { deletePost, listPosts, getMe, getToken, isGuestMode, clearAuth } from "./lib/api";
 import LoginForm from "./components/LoginForm";
 import { PROMPTS } from "./constants";
 import StoryCard from "./components/StoryCard";
@@ -14,7 +14,7 @@ const isThisMonth = (iso) => {
   return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
 };
 
-export default function App() {
+function Dashboard() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [posts, setPosts] = useState([]);//React uses state to store dynamic data that changes when users interact with the app.
   const [status, setStatus] = useState("loading"); // loading | ready | error
@@ -25,30 +25,36 @@ export default function App() {
   const [prompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
 
 
-  // ========================================================
-  // 1. READ TOKEN FROM LOCALSTORAGE
-  // ========================================================
-  const token = getToken();
   const isGuest = isGuestMode();
+  const [me, setMe] = useState(null); // the logged-in user, from GET /me
 
-  // ========================================================
-  // 2. IF NO TOKEN, SHOW LOGIN SCREEN & BLOCK APP DASHBOARD
-  // ========================================================
-  if (!token && !isGuest) {
-    return <LoginForm onLoginSuccess={() => window.location.reload()} />;
-  }
-
-  // ========================================================
-  // 3. REST OF YOUR DASHBOARD LOGIC (load, useEffect, etc.)
-  // ========================================================
   const load = useCallback(async () => {
     try {
       setPosts(await listPosts());
       setStatus("ready");
-    } catch {
+    } catch (err) {
+      if (err.status === 401) {
+        clearAuth(); // token expired or invalid: go back to the login screen
+        window.location.reload();
+        return;
+      }
       setStatus("error");
     }
   }, []);
+
+  // Ask the backend who is logged in, so the profile menu shows the real account
+  useEffect(() => {
+    if (isGuest) return;
+    getMe()
+      .then((user) => {
+        console.log("DEBUG [app] logged in as:", user.email); // remove before deploy
+        setMe(user);
+      })
+      .catch(() => {});
+  }, [isGuest]);
+
+  const email = me?.email ?? "";
+  const initials = email ? email.slice(0, 2).toUpperCase() : "…";
 
   useEffect(() => {
     load();
@@ -120,7 +126,7 @@ export default function App() {
                   isGuest ? "bg-amber-100 text-amber-800 border border-amber-300" : "bg-pink-200 text-pink-900"
                 }`}
               >
-                {isGuest ? "G" : "NF"}
+                {isGuest ? "G" : initials}
               </button>
 
               {/* Dropdown Menu */}
@@ -128,7 +134,7 @@ export default function App() {
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-800">
-                      {isGuest ? "Guest User" : "Nurfarhanah"}
+                      {isGuest ? "Guest User" : email || "Loading..."}
                     </p>
                     <p className="text-xs text-gray-500">
                       {isGuest ? "Local Sandbox Session" : "User Account"}
@@ -263,4 +269,12 @@ export default function App() {
       {vocab && <VocabularyPopup justSaved={vocab === "saved"} onClose={() => setVocab(null)} />}
     </div>
   );
+}
+
+// Shows the login screen or the dashboard. It has no hooks, so React's rules are respected.
+export default function App() {
+  if (!getToken() && !isGuestMode()) {
+    return <LoginForm onLoginSuccess={() => window.location.reload()} />;
+  }
+  return <Dashboard />;
 }

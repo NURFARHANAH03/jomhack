@@ -17,18 +17,15 @@ class Post(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-
 class VocabAI(BaseModel):
-    """What Gemini must return (also used as Gemini's response schema)."""
     word: str
-    part_of_speech: str
+    part_of_speech: Optional[str] = None
     definition: str
     example: str
 
-
 class Vocabulary(VocabAI):
-    """What our API returns: the word plus where it came from."""
-    source: str  # "ai" or "fallback"
+    letter: Optional[str] = None
+    source: Optional[str] = "ai"
 
 class CurrentUser(BaseModel):
     """The logged-in user, taken from the Supabase token."""

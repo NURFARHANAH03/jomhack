@@ -4,7 +4,9 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-from supabase import Client
+from supabase import Client, create_client
+
+from kokoronal.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,9 @@ class MediaService:
 
     def __init__(self, client: Client, bucket: str, max_mb: int):
         self.bucket = bucket
-        self.storage = client.storage.from_(bucket)
+        # Own client: login on the shared client must not change storage permissions
+        storage_client = create_client(settings.supabase_url, settings.supabase_service_role_key)
+        self.storage = storage_client.storage.from_(bucket)
         self.max_bytes = max_mb * 1024 * 1024
         self.max_mb = max_mb
 

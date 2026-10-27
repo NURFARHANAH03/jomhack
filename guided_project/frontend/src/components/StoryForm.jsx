@@ -138,6 +138,18 @@ export default function StoryForm({ post, onClose, onSaved }) {
           <label className="block text-xs font-bold text-brand-700 mb-1">
             Attach {format === "video" ? "a video (mp4 or webm)" : "a photo"} (optional)
           </label>
+
+          {/* NEW: preview of the media already saved on this story */}
+          {isEdit && post.image && !file && !removeMedia && (
+            <div className="mb-3 rounded-2xl overflow-hidden border border-brand-100 bg-brand-50/50">
+              {isVideo(post.image) ? (
+                <video src={post.image} controls className="w-full max-h-64 object-contain" />
+              ) : (
+                <img src={post.image} alt="Current attachment" className="w-full max-h-64 object-contain" />
+              )}
+            </div>
+          )}
+
           <label className="block border-2 border-dashed border-brand-200 rounded-2xl p-4 text-center hover:bg-brand-50/50 transition cursor-pointer">
             <i className="fa-solid fa-cloud-arrow-up text-brand-500 text-xl mb-1" />
             <p className="text-xs text-gray-500 font-medium">{file ? `Selected: ${file.name}` : "Click to choose a file"}</p>

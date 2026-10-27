@@ -26,7 +26,7 @@ from kokoronal.vocabulary_repository import VocabularyRepository
 
 logger = logging.getLogger(__name__)
 
-# (word, part of speech, definition, example) - two per letter, used when Gemini can't help
+# Complete A-Z Fallback list ensuring every single letter is present
 _FALLBACK = [
     ("ambitious", "adjective", "Having a strong wish to succeed or achieve something.", "She is ambitious and plans to finish her degree early."),
     ("abundant", "adjective", "Existing in large amounts; more than enough.", "The market had abundant fresh fruit this season."),
@@ -82,7 +82,6 @@ _FALLBACK = [
     ("zenith", "noun", "The highest point or peak of something.", "The singer's career reached its zenith that year."),
 ]
 
-# {"A": [{...}, {...}], "B": [...]}
 FALLBACK_BY_LETTER: dict[str, list[dict]] = {}
 for _word, _pos, _definition, _example in _FALLBACK:
     FALLBACK_BY_LETTER.setdefault(_word[0].upper(), []).append(
@@ -92,7 +91,7 @@ for _word, _pos, _definition, _example in _FALLBACK:
 
 class VocabularyService:
     MAX_TRIES = 3
-    WORD_PATTERN = re.compile(r"[A-Za-z][A-Za-z'-]*")  # one real word, no spaces or digits
+    WORD_PATTERN = re.compile(r"[A-Za-z][A-Za-z'-]*")
 
     def __init__(
         self,
@@ -111,26 +110,34 @@ class VocabularyService:
         letter = self._clean_letter(letter)
         author = (author_id or "").strip() or self.default_author_id
         seen = {w.lower() for w in self.history.list_words(author, letter)}
-        avoid = set(seen)  # grows with words Gemini gives us that we reject
+        avoid = set(seen)
 
+        # 1. Try Gemini AI
         for attempt in range(1, self.MAX_TRIES + 1):
             candidate = self._ask_gemini(letter, avoid)
             if candidate is None:
-                break  # Gemini unavailable -> go straight to the fallback list
+                break  # Gemini unavailable -> go straight to local fallbacks
 
             word = candidate.word.strip()
             if self._is_acceptable(word, letter, seen):
                 self.history.add(author, word, letter)
-                return Vocabulary(**{**candidate.model_dump(), "word": word}, source="ai")
+                return Vocabulary(
+                    word=word,
+                    part_of_speech=candidate.part_of_speech,
+                    definition=candidate.definition,
+                    example=candidate.example,
+                    letter=letter,
+                    source="ai"
+                )
 
             avoid.add(word.lower())
 
+        # 2. Fallback to built-in list
         return self._fallback(letter, author, seen)
 
     # ---------- helpers ----------
     @staticmethod
     def _clean_letter(letter: Optional[str]) -> str:
-        """No letter -> a random one. Otherwise it must be a single A-Z letter."""
         if letter is None or letter.strip() == "":
             return random.choice(string.ascii_uppercase)
         letter = letter.strip()
@@ -173,18 +180,25 @@ class VocabularyService:
             )
             parsed = resp.parsed
             return parsed if isinstance(parsed, VocabAI) else None
-        except Exception as exc:  # rate limit, bad key, bad model name, network...
+        except Exception as exc:
             logger.warning("Gemini vocabulary request failed: %s", exc)
             return None
 
     def _fallback(self, letter: str, author: str, seen: set[str]) -> Vocabulary:
-        options = FALLBACK_BY_LETTER[letter]
-        unseen = [o for o in options if o["word"] not in seen]
+        options = FALLBACK_BY_LETTER.get(letter, [])
+        if not options:
+            options = [{
+                "word": f"{letter}xample",
+                "part_of_speech": "noun",
+                "definition": f"A word starting with the letter {letter}.",
+                "example": f"This is an example word for the letter {letter}."
+            }]
+
+        unseen = [o for o in options if o["word"].lower() not in seen]
         if unseen:
             pick = random.choice(unseen)
             self.history.add(author, pick["word"], letter)
         else:
-            pick = random.choice(options)  # every built-in word was used: a repeat is unavoidable
-        return Vocabulary(**pick, source="fallback")
-
-
+            pick = random.choice(options)
+            
+        return Vocabulary(**pick, letter=letter, source="fallback")
